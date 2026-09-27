@@ -1,0 +1,95 @@
+name: Build 0xjz1 IPA
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  build-ipa:
+    name: 🔨 Build & Package IPA
+    runs-on: macos-14
+
+    steps:
+      # ─── 1. Checkout ─────────────────────────────────────
+      - name: 📦 Checkout Repository
+        uses: actions/checkout@v4
+
+      # ─── 2. Xcode Setup ──────────────────────────────────
+      - name: 🛠 Select Xcode 15
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      # ─── 3. XcodeGen ─────────────────────────────────────
+      - name: 📋 Install XcodeGen
+        run: brew install xcodegen
+
+      - name: ⚙️ Generate Xcode Project
+        run: xcodegen generate
+
+      # ─── 4. App Icon ─────────────────────────────────────
+      - name: 🎨 Generate App Icon
+        run: |
+          mkdir -p Sources/App/Assets.xcassets/AppIcon.appiconset
+          curl -L "https://i.ibb.co/n40bJLx/Screenshot-2026-09-12-193416.png" -o icon_src.png 2>/dev/null || true
+          
+          SIZES="20 29 40 58 60 76 80 87 120 152 167 180 1024"
+          for SIZE in $SIZES; do
+            sips -z $SIZE $SIZE icon_src.png --out Sources/App/Assets.xcassets/AppIcon.appiconset/icon_${SIZE}.png 2>/dev/null || true
+          done
+          
+          cat > Sources/App/Assets.xcassets/AppIcon.appiconset/Contents.json << 'EOF'
+          {
+            "images": [
+              {"filename":"icon_40.png","idiom":"iphone","scale":"2x","size":"20x20"},
+              {"filename":"icon_60.png","idiom":"iphone","scale":"3x","size":"20x20"},
+              {"filename":"icon_58.png","idiom":"iphone","scale":"2x","size":"29x29"},
+              {"filename":"icon_87.png","idiom":"iphone","scale":"3x","size":"29x29"},
+              {"filename":"icon_80.png","idiom":"iphone","scale":"2x","size":"40x40"},
+              {"filename":"icon_120.png","idiom":"iphone","scale":"3x","size":"40x40"},
+              {"filename":"icon_120.png","idiom":"iphone","scale":"2x","size":"60x60"},
+              {"filename":"icon_180.png","idiom":"iphone","scale":"3x","size":"60x60"},
+              {"filename":"icon_20.png","idiom":"ipad","scale":"1x","size":"20x20"},
+              {"filename":"icon_40.png","idiom":"ipad","scale":"2x","size":"20x20"},
+              {"filename":"icon_29.png","idiom":"ipad","scale":"1x","size":"29x29"},
+              {"filename":"icon_58.png","idiom":"ipad","scale":"2x","size":"29x29"},
+              {"filename":"icon_40.png","idiom":"ipad","scale":"1x","size":"40x40"},
+              {"filename":"icon_80.png","idiom":"ipad","scale":"2x","size":"40x40"},
+              {"filename":"icon_76.png","idiom":"ipad","scale":"1x","size":"76x76"},
+              {"filename":"icon_152.png","idiom":"ipad","scale":"2x","size":"76x76"},
+              {"filename":"icon_167.png","idiom":"ipad","scale":"2x","size":"83.5x83.5"},
+              {"filename":"icon_1024.png","idiom":"ios-marketing","scale":"1x","size":"1024x1024"}
+            ],
+            "info": {"author":"xcode","version":1}
+          }
+          EOF
+
+      # ─── 5. Build Archive ─────────────────────────────────
+      - name: 🏗 Build Archive
+        run: |
+          xcodebuild archive \
+            -project xjz1app.xcodeproj \
+            -scheme xjz1app \
+            -configuration Release \
+            -archivePath "$PWD/build/0xjz1.xcarchive" \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
+
+      # ─── 6. Package IPA ──────────────────────────────────
+      - name: 📦 Package Unsigned IPA
+        run: |
+          mkdir -p build/Payload
+          cp -r "build/0xjz1.xcarchive/Products/Applications/0xjz1.app" build/Payload/
+          cd build
+          zip -qr "0xjz1.ipa" Payload
+          echo "✅ IPA package created successfully at build/0xjz1.ipa"
+
+      # ─── 7. Upload IPA Artifact ───────────────────────────
+      - name: 🚀 Upload IPA Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: 0xjz1-unsigned-ipa
+          path: build/0xjz1.ipa
+          retention-days: 14
