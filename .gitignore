@@ -1,0 +1,29 @@
+# Xcode
+*.xcodeproj/
+build/
+*.xcarchive
+*.ipa
+DerivedData/
+*.moved-aside
+*.xcuserstate
+xcuserdata/
+*.xccheckout
+*.xcscmblueprint
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.Spotlight-V100
+.Trashes
+
+# Generated
+Sources/App/Info.plist
+Sources/App/Assets.xcassets/AppIcon.appiconset/*.png
+icon_src.png
+
+# Node / misc
+node_modules/
+*.log

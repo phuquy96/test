@@ -1,0 +1,71 @@
+name: xjz1app
+options:
+  bundleIdPrefix: com.phuquy
+  deploymentTarget:
+    iOS: "16.0"
+  createIntermediateGroups: true
+  xcodeVersion: "15"
+
+settings:
+  base:
+    PRODUCT_NAME: "0xjz1"
+    PRODUCT_BUNDLE_IDENTIFIER: com.phuquy.xjz1app
+    MARKETING_VERSION: "2.0.0"
+    CURRENT_PROJECT_VERSION: "1"
+    SWIFT_VERSION: "5.9"
+    IPHONEOS_DEPLOYMENT_TARGET: "16.0"
+    TARGETED_DEVICE_FAMILY: "1,2"
+    CODE_SIGN_IDENTITY: ""
+    CODE_SIGNING_REQUIRED: "NO"
+    CODE_SIGNING_ALLOWED: "NO"
+    ENABLE_BITCODE: "NO"
+    ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+    SWIFT_OPTIMIZATION_LEVEL: "-Onone"
+  configs:
+    Debug:
+      DEBUG_INFORMATION_FORMAT: dwarf
+    Release:
+      DEBUG_INFORMATION_FORMAT: dwarf-with-dsym
+      SWIFT_OPTIMIZATION_LEVEL: "-O"
+
+targets:
+  xjz1app:
+    type: application
+    platform: iOS
+    sources:
+      - path: Sources/App
+        name: Sources
+    resources:
+      - path: Resources
+        type: folder
+        name: Resources
+    info:
+      path: Sources/App/Info.plist
+      properties:
+        CFBundleName: "0xjz1"
+        CFBundleDisplayName: "0xjz1"
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
+        CFBundleIdentifier: "$(PRODUCT_BUNDLE_IDENTIFIER)"
+        CFBundleExecutable: "$(EXECUTABLE_NAME)"
+        CFBundlePackageType: APPL
+        UILaunchScreen: {}
+        UIRequiresFullScreen: true
+        UIStatusBarStyle: UIStatusBarStyleLightContent
+        UIViewControllerBasedStatusBarAppearance: false
+        UIStatusBarHidden: false
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        NSAppTransportSecurity:
+          NSAllowsArbitraryLoads: true
+          NSExceptionDomains:
+            severphuquy.sbs:
+              NSExceptionAllowsInsecureHTTPLoads: false
+              NSIncludesSubdomains: true
+        UIBackgroundModes: []
+        LSRequiresIPhoneOS: true
