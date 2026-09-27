@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover,user-scalable=no,maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>0xjz1</title>
+<style>
+/* ===================== RESET ===================== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#0A84FF;--cyan:#32ADE6;--green:#30D158;
+  --red:#FF453A;--orange:#FF9F0A;--purple:#BF5AF2;
+  --glass:rgba(28,28,30,0.78);--glass2:rgba(44,44,46,0.6);
+  --border:rgba(255,255,255,0.13);--border2:rgba(255,255,255,0.22);
+  --text:#fff;--text2:rgba(255,255,255,0.6);--text3:rgba(255,255,255,0.32);
+  --sat:env(safe-area-inset-top,44px);
+  --sab:env(safe-area-inset-bottom,34px);
+  --sal:env(safe-area-inset-left,0px);
+  --sar:env(safe-area-inset-right,0px);
+}
+html,body{width:100%;height:100%;overflow:hidden;background:#000;color:#fff;
+  font-family:-apple-system,'SF Pro Display','SF Pro Text','Helvetica Neue',system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+  user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+input,button,textarea{font-family:inherit}
+button{cursor:pointer;border:none;background:none}
+
+/* ===================== BACKGROUND ===================== */
+#bg{position:fixed;inset:0;z-index:0;
+  background:radial-gradient(ellipse at 18% 12%,#091628 0%,#020810 45%,#000 100%)}
+.orb{position:absolute;border-radius:50%;filter:blur(90px);pointer-events:none}
+.o1{width:700px;height:700px;top:-250px;left:-200px;
+  background:radial-gradient(circle,rgba(10,132,255,.2) 0%,transparent 70%);
+  animation:o1f 14s ease-in-out infinite}
+.o2{width:550px;height:550px;bottom:-180px;right:-180px;
+  background:radial-gradient(circle,rgba(50,173,230,.13) 0%,transparent 70%);
+  animation:o2f 17s ease-in-out infinite}
+.o3{width:350px;height:350px;top:35%;left:25%;
+  background:radial-gradient(circle,rgba(191,90,242,.08) 0%,transparent 70%);
+  animation:o3f 11s ease-in-out infinite}
+@keyframes o1f{0%,100%{transform:translate(0,0) scale(1)}40%{transform:translate(70px,50px) scale(1.1)}80%{transform:translate(20px,90px) scale(.93)}}
+@keyframes o2f{0%,100%{transform:translate(0,0) scale(1)}55%{transform:translate(-60px,-70px) scale(1.12)}}
+@keyframes o3f{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-40px,35px) scale(1.18)}}
+#starCanvas{position:fixed;inset:0;z-index:1;pointer-events:none}
+
+/* ===================== SCREENS ===================== */
+.screen{position:fixed;inset:0;z-index:10;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:var(--sat) var(--sal) var(--sab) var(--sar);
+  opacity:0;pointer-events:none;transition:opacity .4s ease,transform .4s cubic-bezier(.34,1.56,.64,1)}
+.screen.act{opacity:1;pointer-events:all}
+
+/* ===================== SPLASH ===================== */
+#spS{transition:opacity .5s ease}
+.sp-logo{width:94px;height:94px;border-radius:22px;
+  background:linear-gradient(145deg,#0d2040,#061428);
+  box-shadow:0 22px 60px rgba(10,132,255,.55),0 0 0 1px rgba(255,255,255,.1) inset;
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;position:relative;margin-bottom:22px;
+  animation:spPulse 2.2s ease-in-out infinite}
+.sp-logo::after{content:'';position:absolute;top:0;left:0;right:0;height:50%;
+  background:linear-gradient(180deg,rgba(255,255,255,.14) 0%,transparent 100%);border-radius:22px 22px 0 0}
+.sp-logo img{width:74px;height:74px;object-fit:cover;border-radius:14px;z-index:1;position:relative}
+@keyframes spPulse{0%,100%{box-shadow:0 22px 60px rgba(10,132,255,.55),0 0 0 1px rgba(255,255,255,.1) inset}
+  50%{box-shadow:0 22px 80px rgba(10,132,255,.75),0 0 0 1.5px rgba(255,255,255,.18) inset;transform:scale(1.03)}}
+.sp-title{font-size:34px;font-weight:800;letter-spacing:-1px;
+  background:linear-gradient(135deg,#fff 0%,rgba(255,255,255,.55) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px}
+.sp-sub{font-size:14px;color:var(--text3);letter-spacing:.4px;margin-bottom:40px}
+.sp-dots{display:flex;gap:7px}
+.sp-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.25);
+  animation:spDot 1.5s ease-in-out infinite}
+.sp-dot:nth-child(2){animation-delay:.18s}.sp-dot:nth-child(3){animation-delay:.36s}
+@keyframes spDot{0%,80%,100%{transform:scale(.6);opacity:.25}40%{transform:scale(1);opacity:1;background:var(--blue)}}
+
+/* ===================== AUTH SCREEN ===================== */
+#authS{transform:translateY(36px);padding:16px}
+#authS.act{transform:translateY(0)}
+.auth-scroll{width:100%;max-width:410px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.auth-card{background:var(--glass);
+  backdrop-filter:blur(40px) saturate(190%);-webkit-backdrop-filter:blur(40px) saturate(190%);
+  border:1px solid var(--border);border-radius:30px;padding:30px 22px 22px;
+  box-shadow:0 36px 80px rgba(0,0,0,.75),0 0 0 .5px rgba(255,255,255,.06) inset}
+
+.a-icon-wrap{display:flex;flex-direction:column;align-items:center;margin-bottom:22px}
+.a-icon{width:78px;height:78px;border-radius:21px;
+  background:linear-gradient(148deg,#0d2040,#061428);
+  box-shadow:0 14px 44px rgba(10,132,255,.5),0 0 0 1px rgba(255,255,255,.09) inset;
+  display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
+.a-icon::after{content:'';position:absolute;top:0;left:0;right:0;height:50%;
+  background:linear-gradient(180deg,rgba(255,255,255,.13) 0%,transparent 100%);border-radius:21px 21px 0 0}
+.a-icon img{width:62px;height:62px;object-fit:cover;border-radius:14px;z-index:1;position:relative}
+.a-stem{width:2px;height:15px;background:linear-gradient(to bottom,rgba(10,132,255,.65),transparent);margin:0 auto}
+.a-title{font-size:25px;font-weight:700;letter-spacing:-.5px;text-align:center;margin-bottom:7px;color:#fff}
+.a-sub{font-size:13px;color:var(--text2);text-align:center;line-height:1.55;margin-bottom:24px}
+
+/* Field */
+.f-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}
+.f-lbl{font-size:11px;font-weight:700;letter-spacing:.9px;color:rgba(255,255,255,.42);display:flex;align-items:center;gap:4px}
+.hwid-txt{font-size:10px;color:var(--text3);font-family:'SF Mono','Menlo','Courier New',monospace;letter-spacing:.3px}
+.inp-wrap{position:relative;margin-bottom:13px}
+.key-inp{width:100%;padding:15px 84px 15px 48px;
+  background:rgba(255,255,255,.07);border:1.5px solid rgba(10,132,255,.38);border-radius:15px;
+  color:#fff;font-size:14px;outline:none;-webkit-appearance:none;
+  font-family:'SF Mono','Menlo','Courier New',monospace;letter-spacing:.6px;
+  transition:all .2s}
+.key-inp::placeholder{font-family:-apple-system,system-ui,sans-serif;font-size:14px;
+  letter-spacing:0;color:rgba(255,255,255,.2)}
+.key-inp:focus{border-color:rgba(10,132,255,.75);background:rgba(10,132,255,.07);
+  box-shadow:0 0 0 4px rgba(10,132,255,.12)}
+.key-inp[readonly]{opacity:.65;pointer-events:none}
+.inp-icon{position:absolute;left:15px;top:50%;transform:translateY(-50%);font-size:17px;pointer-events:none}
+.paste-btn{position:absolute;right:6px;top:50%;transform:translateY(-50%);
+  padding:8px 13px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.13);
+  border-radius:11px;color:rgba(255,255,255,.85);font-size:12px;font-weight:600;
+  display:flex;align-items:center;gap:4px;transition:background .15s;white-space:nowrap}
+.paste-btn:active{background:rgba(255,255,255,.2)}
+
+/* Buttons */
+.btn-main{width:100%;padding:17px;border-radius:17px;font-size:16px;font-weight:700;
+  letter-spacing:-.2px;background:linear-gradient(138deg,#0A84FF 0%,#32ADE6 100%);
+  color:#fff;border:none;display:flex;align-items:center;justify-content:center;gap:9px;
+  box-shadow:0 12px 32px rgba(10,132,255,.48),0 0 0 1px rgba(255,255,255,.1) inset;
+  margin-bottom:11px;transition:all .2s cubic-bezier(.34,1.56,.64,1)}
+.btn-main:active{transform:scale(.96);box-shadow:0 5px 16px rgba(10,132,255,.3)}
+.btn-main:disabled{opacity:.6;transform:scale(1)!important}
+.btn-tg{width:100%;padding:16px;border-radius:17px;font-size:15px;font-weight:600;
+  background:rgba(255,159,10,.12);border:1.5px solid rgba(255,159,10,.38);
+  color:var(--orange);display:flex;align-items:center;justify-content:center;gap:8px;
+  margin-bottom:11px;transition:all .2s}
+.btn-tg:active{transform:scale(.97);background:rgba(255,159,10,.22)}
+.btn-sup{width:100%;padding:15px;border-radius:17px;font-size:14px;font-weight:500;
+  background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.09);
+  color:var(--text2);display:flex;align-items:center;justify-content:center;gap:7px;
+  transition:all .2s}
+.btn-sup:active{transform:scale(.97);background:rgba(255,255,255,.1)}
+.spinner{width:19px;height:19px;border:2.5px solid rgba(255,255,255,.3);
+  border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.a-footer{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:18px}
+.a-fitem{font-size:10px;color:rgba(255,255,255,.2);letter-spacing:.3px}
+.a-fsep{width:3px;height:3px;border-radius:50%;background:rgba(255,255,255,.15)}
+
+/* ===================== OVERLAYS ===================== */
+.overlay{position:fixed;inset:0;z-index:60;
+  background:rgba(0,0,0,.8);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  display:flex;align-items:center;justify-content:center;padding:24px;
+  opacity:0;pointer-events:none;transition:opacity .3s ease}
+.overlay.show{opacity:1;pointer-events:all}
+.modal{width:100%;max-width:344px;background:rgba(16,16,18,.97);
+  backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);
+  border:1px solid rgba(255,255,255,.1);border-radius:28px;
+  padding:34px 22px 26px;text-align:center;
+  transform:scale(.84) translateY(22px);
+  transition:transform .42s cubic-bezier(.34,1.56,.64,1)}
+.overlay.show .modal{transform:scale(1) translateY(0)}
+.m-circle{width:74px;height:74px;border-radius:50%;border:2.5px solid;
+  display:flex;align-items:center;justify-content:center;margin:0 auto 20px;
+  transition:all .3s}
+.m-circle.suc{border-color:rgba(255,255,255,.7)}
+.m-circle.err{border-color:rgba(255,69,58,.75)}
+.m-check{font-size:32px;font-weight:300;line-height:1;color:#fff}
+.m-x{font-size:30px;font-weight:400;color:var(--red);line-height:1}
+.m-head{font-size:18px;font-weight:700;letter-spacing:-.3px;margin-bottom:20px;color:#fff}
+.info-tbl{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);
+  border-radius:16px;padding:4px 15px;margin-bottom:15px;text-align:left}
+.info-row{display:flex;justify-content:space-between;align-items:center;
+  padding:11px 0;border-bottom:.5px solid rgba(255,255,255,.06)}
+.info-row:last-child{border-bottom:none}
+.i-lbl{font-size:13px;color:rgba(255,255,255,.45);flex-shrink:0}
+.i-val{font-size:13px;font-weight:700;color:#fff;text-align:right;word-break:break-all;max-width:195px}
+.i-val.mono{font-family:'SF Mono','Menlo','Courier New',monospace;font-size:12px}
+.m-timer{font-size:13px;color:rgba(255,255,255,.38);margin-top:4px}
+.m-timer b{color:#fff;font-size:15px}
+.err-modal{background:rgba(10,10,12,.98);border:1.5px solid rgba(255,69,58,.22)}
+
+/* ===================== APP SCREEN ===================== */
+#appS{padding:0;justify-content:flex-start;
+  transform:translateX(45px);transition:opacity .35s ease,transform .35s cubic-bezier(.4,0,.2,1)}
+#appS.act{transform:translateX(0)}
+.app-wrap{width:100%;height:100%;display:flex;flex-direction:column}
+
+/* Tab Panes */
+.tab-pane{display:none;flex:1;overflow-y:auto;overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;padding-top:var(--sat)}
+.tab-pane.act{display:flex;flex-direction:column}
+
+/* Tab Bar */
+.tabbar{flex-shrink:0;display:flex;
+  background:rgba(14,14,16,.94);backdrop-filter:blur(30px) saturate(180%);
+  -webkit-backdrop-filter:blur(30px) saturate(180%);
+  border-top:.5px solid rgba(255,255,255,.1);
+  padding-top:9px;padding-bottom:calc(var(--sab) + 9px)}
+.tab-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:6px 8px;border:none;background:none;
+  color:rgba(255,255,255,.36);transition:color .2s,transform .2s cubic-bezier(.34,1.56,.64,1)}
+.tab-btn .ti{font-size:24px;line-height:1;transition:transform .2s cubic-bezier(.34,1.56,.64,1)}
+.tab-btn .tl{font-size:10px;font-weight:500}
+.tab-btn.act{color:var(--blue)}
+.tab-btn.act .ti{transform:scale(1.14)}
+.tab-btn:active .ti{transform:scale(.86)}
+
+/* ===================== HOME TAB ===================== */
+.home-c{padding:18px 20px 24px}
+.h-greet{font-size:13px;color:var(--text3);margin-bottom:2px}
+.h-title{font-size:31px;font-weight:800;letter-spacing:-.8px;margin-bottom:22px}
+.live-card{background:rgba(10,132,255,.1);border:1px solid rgba(10,132,255,.22);
+  border-radius:22px;padding:20px;margin-bottom:14px;position:relative;overflow:hidden}
+.live-card::before{content:'';position:absolute;top:0;left:0;right:0;height:38%;
+  background:linear-gradient(180deg,rgba(255,255,255,.06) 0%,transparent 100%)}
+.lc-lbl{font-size:12px;color:rgba(255,255,255,.42);margin-bottom:5px}
+.lc-val{font-size:15px;font-weight:700;color:#fff;
+  font-family:'SF Mono','Menlo','Courier New',monospace;word-break:break-all;margin-bottom:10px}
+.live-badge{display:inline-flex;align-items:center;gap:5px;
+  background:rgba(48,209,88,.15);border:1px solid rgba(48,209,88,.3);
+  border-radius:100px;padding:4px 11px;font-size:11px;font-weight:700;color:var(--green)}
+.ldot{width:6px;height:6px;border-radius:50%;background:var(--green);
+  animation:ldp 1.6s ease infinite}
+@keyframes ldp{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.65)}}
+.igrid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:14px}
+.icard{background:var(--glass2);border:1px solid var(--border);border-radius:17px;padding:15px}
+.ic-lbl{font-size:11px;color:var(--text3);margin-bottom:5px}
+.ic-val{font-size:14px;font-weight:700;color:#fff}
+.ic-val.cdown{color:var(--orange);font-family:'SF Mono','Menlo',monospace;font-size:13px}
+
+/* ===================== APPS TAB ===================== */
+.apps-c{padding:18px 16px 24px}
+.apps-title{font-size:31px;font-weight:800;letter-spacing:-.8px;margin-bottom:14px;padding:0 4px}
+.sbar{display:flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.07);
+  border-radius:14px;padding:10px 14px;margin-bottom:22px}
+.sbar input{flex:1;background:none;border:none;color:#fff;font-size:15px;outline:none}
+.sbar input::placeholder{color:rgba(255,255,255,.28)}
+.sbar-icon{font-size:16px;opacity:.38}
+.apps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:22px}
+.ac{display:flex;flex-direction:column;align-items:center;gap:7px}
+.ac-icon{width:76px;height:76px;border-radius:18px;overflow:hidden;
+  box-shadow:0 5px 22px rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.06);
+  display:flex;align-items:center;justify-content:center;font-size:36px;
+  transition:transform .15s cubic-bezier(.34,1.56,.64,1)}
+.ac-icon:active{transform:scale(.88)}
+.ac-icon img{width:100%;height:100%;object-fit:cover}
+.ac-name{font-size:11px;font-weight:500;color:rgba(255,255,255,.85);text-align:center}
+.ac-id{font-size:9px;color:rgba(255,255,255,.28);text-align:center}
+
+/* ===================== SETTINGS TAB ===================== */
+.set-c{padding:18px 20px 24px}
+.set-title{font-size:31px;font-weight:800;letter-spacing:-.8px;margin-bottom:20px}
+.set-glass{background:rgba(28,28,30,.76);
+  backdrop-filter:blur(40px) saturate(190%);-webkit-backdrop-filter:blur(40px) saturate(190%);
+  border:1.5px solid var(--border2);border-radius:22px;overflow:hidden;
+  box-shadow:0 22px 60px rgba(0,0,0,.5),0 0 0 .5px rgba(255,255,255,.055) inset;
+  margin-bottom:16px}
+.sg-sec{font-size:11px;font-weight:700;letter-spacing:.6px;
+  color:rgba(255,255,255,.34);text-transform:uppercase;padding:14px 18px 8px}
+.sg-cell{display:flex;justify-content:space-between;align-items:center;
+  padding:14px 18px;border-top:.5px solid rgba(255,255,255,.07)}
+.sg-cell:first-of-type{border-top:none}
+.sg-left{display:flex;align-items:center;gap:10px}
+.sg-ico{width:32px;height:32px;border-radius:9px;
+  display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.sg-txt{font-size:15px;color:rgba(255,255,255,.8)}
+.sg-val{font-size:14px;font-weight:600;color:var(--text2);text-align:right;word-break:break-all;max-width:55%}
+.sg-val.mono{font-family:'SF Mono','Menlo',monospace;font-size:12px}
+.sg-val.grn{color:var(--green)}.sg-val.org{color:var(--orange)}.sg-val.red{color:var(--red)}
+
+/* ===================== EXPIRY OVERLAY ===================== */
+#expiryOv{z-index:90}
+
+/* ===================== UTILS ===================== */
+::-webkit-scrollbar{display:none}
+*:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+</style>
+</head>
+<body>
+
+<!-- Background -->
+<div id="bg">
+  <div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div>
+</div>
+<canvas id="starCanvas"></canvas>
+
+<!-- ═══════════════ SPLASH ═══════════════ -->
+<div id="spS" class="screen act">
+  <div class="sp-logo">
+    <img src="https://i.ibb.co/n40bJLx/Screenshot-2026-09-12-193416.png" alt="0xjz1"
+         onerror="this.style.display='none';this.parentElement.innerHTML+='<span style=font-size:40px;z-index:1;position:relative>🔐</span>'">
+  </div>
+  <div class="sp-title">0xjz1</div>
+  <div class="sp-sub">PhuQuy VIP Ultra • Auth System v2.0</div>
+  <div class="sp-dots">
+    <div class="sp-dot"></div><div class="sp-dot"></div><div class="sp-dot"></div>
+  </div>
+</div>
+
+<!-- ═══════════════ AUTH SCREEN ═══════════════ -->
+<div id="authS" class="screen">
+  <div class="auth-scroll">
+    <div class="auth-card">
+      <div class="a-icon-wrap">
+        <div class="a-icon">
+          <img src="https://i.ibb.co/n40bJLx/Screenshot-2026-09-12-193416.png" alt="0xjz1"
+               onerror="this.style.display='none';this.parentElement.innerHTML+='<span style=font-size:32px;z-index:1;position:relative>🔐</span>'">
+        </div>
+        <div class="a-stem"></div>
+      </div>
+      <div class="a-title">Xác Thực License</div>
+      <div class="a-sub">Mở khóa hệ thống 0xjz1 cao cấp với<br>công nghệ bảo mật thời gian thực.</div>
+      <div class="f-header">
+        <div class="f-lbl">🔑 LICENSE KEY</div>
+        <div class="hwid-txt" id="hwidTxt">HWID: ---</div>
+      </div>
+      <div class="inp-wrap">
+        <span class="inp-icon">👁️</span>
+        <input type="text" class="key-inp" id="keyInp"
+               placeholder="Dán hoặc nhập key..."
+               autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+        <button class="paste-btn" id="pasteBtn" onclick="doPaste()">📋 Dán</button>
+      </div>
+      <button class="btn-main" id="authBtn" onclick="doAuth()">
+        <span id="authIcon">⚡</span>
+        <span id="authTxt">Xác Thực &amp; Mở Khóa</span>
+      </button>
+      <button class="btn-tg" onclick="openURL('https://t.me/severphuquy')">
+        🎁 &nbsp;Nhận Key Miễn Phí Tại Telegram
+      </button>
+      <button class="btn-sup" onclick="openURL('https://severphuquy.sbs')">
+        🎧 &nbsp;Trung Tâm Hỗ Trợ Kỹ Thuật
+      </button>
+      <div class="a-footer">
+        <span class="a-fitem">PhuQuy VIP Ultra</span><span class="a-fsep"></span>
+        <span class="a-fitem">0xjz1 v2.0</span><span class="a-fsep"></span>
+        <span class="a-fitem">Secured</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ SUCCESS MODAL ═══════════════ -->
+<div class="overlay" id="sucOv">
+  <div class="modal">
+    <div class="m-circle suc"><div class="m-check">✓</div></div>
+    <div class="m-head">ĐÃ NHẬP KEY THÀNH CÔNG</div>
+    <div class="info-tbl">
+      <div class="info-row"><span class="i-lbl">Key:</span><span class="i-val mono" id="sKey">---</span></div>
+      <div class="info-row"><span class="i-lbl">Thời Hạn:</span><span class="i-val" id="sDur">---</span></div>
+      <div class="info-row"><span class="i-lbl">Ngày Hết Hạn:</span><span class="i-val" id="sExp">---</span></div>
+    </div>
+    <div class="m-timer">Tự động vào Menu trong <b id="sucN">6</b>s...</div>
+  </div>
+</div>
+
+<!-- ═══════════════ ERROR MODAL ═══════════════ -->
+<div class="overlay" id="errOv">
+  <div class="modal err-modal">
+    <div class="m-circle err"><div class="m-x">✕</div></div>
+    <div class="m-head" id="errTitle">Lỗi Xác Thực</div>
+    <div class="info-tbl">
+      <div class="info-row"><span class="i-lbl">Key:</span><span class="i-val mono" id="eKey">---</span></div>
+      <div class="info-row">
+        <span class="i-lbl">Trạng thái:</span>
+        <span class="i-val" id="eStatus" style="color:var(--red)">Lỗi</span>
+      </div>
+    </div>
+    <div class="m-timer">Tự đóng trong <b id="errN">4</b>s...</div>
+  </div>
+</div>
+
+<!-- ═══════════════ APP SCREEN ═══════════════ -->
+<div id="appS" class="screen">
+  <div class="app-wrap">
+
+    <!-- HOME -->
+    <div class="tab-pane act" id="pHome">
+      <div class="home-c">
+        <div class="h-greet">Chào mừng trở lại 👋</div>
+        <div class="h-title">0xjz1 Menu</div>
+        <div class="live-card">
+          <div class="lc-lbl">License Key đang hoạt động</div>
+          <div class="lc-val" id="hKey">---</div>
+          <div class="live-badge"><div class="ldot"></div>LIVE · ĐÃ XÁC THỰC</div>
+        </div>
+        <div class="igrid">
+          <div class="icard">
+            <div class="ic-lbl">⏱ Thời Hạn</div>
+            <div class="ic-val" id="hDur">---</div>
+          </div>
+          <div class="icard">
+            <div class="ic-lbl">⏳ Còn Lại</div>
+            <div class="ic-val cdown" id="hCd">--:--:--</div>
+          </div>
+        </div>
+        <div class="icard" style="margin-bottom:12px">
+          <div class="ic-lbl">📅 Hết Hạn Lúc</div>
+          <div class="ic-val" id="hExpAt" style="font-size:13px;margin-top:3px">---</div>
+        </div>
+        <div class="icard">
+          <div class="ic-lbl">🔒 HWID Thiết Bị</div>
+          <div class="ic-val" id="hHWID" style="font-family:monospace;font-size:13px;margin-top:3px">---</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- APPS -->
+    <div class="tab-pane" id="pApps">
+      <div class="apps-c">
+        <div class="apps-title">Ứng Dụng</div>
+        <div class="sbar">
+          <span class="sbar-icon">🔍</span>
+          <input type="text" placeholder="Tìm ứng dụng" oninput="filterApps(this.value)">
+        </div>
+        <div id="appsGrid" class="apps-grid"></div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="tab-pane" id="pSettings">
+      <div class="set-c">
+        <div class="set-title">Cài Đặt</div>
+        <div class="set-glass">
+          <div class="sg-sec">Thông Tin License</div>
+          <div class="sg-cell">
+            <div class="sg-left"><div class="sg-ico" style="background:rgba(10,132,255,.16)">🔑</div><div class="sg-txt">Key</div></div>
+            <div class="sg-val mono" id="stKey">---</div>
+          </div>
+          <div class="sg-cell">
+            <div class="sg-left"><div class="sg-ico" style="background:rgba(48,209,88,.16)">⏱</div><div class="sg-txt">Thời Hạn</div></div>
+            <div class="sg-val grn" id="stDur">---</div>
+          </div>
+          <div class="sg-cell">
+            <div class="sg-left"><div class="sg-ico" style="background:rgba(255,159,10,.16)">⏳</div><div class="sg-txt">Hết Hạn Sau</div></div>
+            <div class="sg-val org mono" id="stCd">--:--:--</div>
+          </div>
+          <div class="sg-cell">
+            <div class="sg-left"><div class="sg-ico" style="background:rgba(191,90,242,.16)">📅</div><div class="sg-txt">Ngày Hết Hạn</div></div>
+            <div class="sg-val" style="font-size:12px" id="stExp">---</div>
+          </div>
+        </div>
+        <div class="set-glass">
+          <div class="sg-sec">Thiết Bị</div>
+          <div class="sg-cell">
+            <div class="sg-left"><div class="sg-ico" style="background:rgba(50,173,230,.16)">📱</div><div class="sg-txt">HWID</div></div>
+            <div class="sg-val mono" id="stHWID">---</div>
+          </div>
+          <div class="sg-cell">
+            <div class="sg-left"><div class="sg-ico" style="background:rgba(255,69,58,.16)">🔒</div><div class="sg-txt">Trạng Thái</div></div>
+            <div class="sg-val red">Đã Khóa</div>
+          </div>
+        </div>
+        <div class="set-glass">
+          <div class="sg-sec">Ứng Dụng</div>
+          <div class="sg-cell">
+            <div class="sg-left"><div class="sg-ico" style="background:rgba(255,214,10,.16)">ℹ️</div><div class="sg-txt">Phiên Bản</div></div>
+            <div class="sg-val">2.0.0</div>
+          </div>
+          <div class="sg-cell">
+            <div class="sg-left"><div class="sg-ico" style="background:rgba(10,132,255,.16)">🌐</div><div class="sg-txt">Server</div></div>
+            <div class="sg-val grn">severphuquy.sbs</div>
+          </div>
+          <div class="sg-cell">
+            <div class="sg-left"><div class="sg-ico" style="background:rgba(48,209,88,.16)">📡</div><div class="sg-txt">Kết Nối</div></div>
+            <div class="sg-val grn">Ổn Định</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB BAR -->
+    <div class="tabbar">
+      <button class="tab-btn act" id="tbHome" onclick="switchTab('Home')">
+        <div class="ti">🏠</div><div class="tl">Trang Chủ</div>
+      </button>
+      <button class="tab-btn" id="tbApps" onclick="switchTab('Apps')">
+        <div class="ti">⊞</div><div class="tl">Ứng Dụng</div>
+      </button>
+      <button class="tab-btn" id="tbSettings" onclick="switchTab('Settings')">
+        <div class="ti">⚙️</div><div class="tl">Cài Đặt</div>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ EXPIRY OVERLAY ═══════════════ -->
+<div class="overlay" id="expiryOv">
+  <div class="modal err-modal">
+    <div class="m-circle err"><div class="m-x">✕</div></div>
+    <div class="m-head">KEY ĐÃ HẾT HẠN</div>
+    <div class="info-tbl">
+      <div class="info-row"><span class="i-lbl">Key:</span><span class="i-val mono" id="expKey">---</span></div>
+      <div class="info-row">
+        <span class="i-lbl">Trạng thái:</span>
+        <span class="i-val" style="color:var(--red)">Đã Hết Hạn</span>
+      </div>
+    </div>
+    <div style="font-size:13px;color:rgba(255,255,255,.4);margin-bottom:7px">
+      Đã Hết Hạn · Vui Lòng Nhập Key Khác
+    </div>
+    <div class="m-timer">Đang kick trong <b id="expN">4</b>s...</div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// 0xjz1 — PhuQuy Auth Engine v2.0
+// ═══════════════════════════════════════════════════════════
+"use strict";
+
+const C = {
+  API: 'https://severphuquy.sbs/api/server_key.php',
+  AKEY: 'PQ-LIVE-2-D4BAFBDF9058F4FE',
+  SKEY: '_pq_sess_v3',
+  HKEY: '_pq_hwid_v3',
+  POLL: 30000
+};
+
+let S = {
+  hwid: null, session: null,
+  cdTimer: null, pollTimer: null,
+  authBusy: false, tab: 'Home'
+};
+
+// ─── BOOT ───────────────────────────────────────────
+window.addEventListener('load', () => {
+  buildStars();
+  window.addEventListener('resize', buildStars);
+  renderApps(APPS);
+  setTimeout(boot, 1900);
+});
+
+async function boot() {
+  S.hwid = await getHWID();
+  el('hwidTxt').textContent = 'HWID: ' + S.hwid;
+  const stored = loadSess();
+  if (stored) {
+    el('keyInp').value = stored.key;
+    el('keyInp').readOnly = true;
+    el('pasteBtn').style.display = 'none';
+    showScreen('auth');
+    setTimeout(() => doAuth(true), 600);
+  } else {
+    showScreen('auth');
+  }
+}
+
+// ─── HWID ────────────────────────────────────────────
+async function getHWID() {
+  const cached = localStorage.getItem(C.HKEY);
+  if (cached) return cached;
+  if (window.webkit?.messageHandlers?.nativeBridge) {
+    return new Promise(res => {
+      window._hwRes = res;
+      window.webkit.messageHandlers.nativeBridge.postMessage({ action: 'getHWID' });
+      setTimeout(() => { if (window._hwRes) { window._hwRes(mkFP()); window._hwRes = null; } }, 2500);
+    });
+  }
+  return mkFP();
+}
+window.receiveNativeHWID = h => {
+  if (window._hwRes) { window._hwRes(h); window._hwRes = null; }
+  S.hwid = h; localStorage.setItem(C.HKEY, h);
+  el('hwidTxt').textContent = 'HWID: ' + h;
+};
+function mkFP() {
+  const raw = [navigator.platform, screen.width+'x'+screen.height,
+               navigator.language, new Date().getTimezoneOffset(), navigator.maxTouchPoints].join('|');
+  let h = 5381;
+  for (let i = 0; i < raw.length; i++) h = ((h << 5) + h) ^ raw.charCodeAt(i);
+  const fp = 'PQ-' + Math.abs(h).toString(16).toUpperCase().padStart(8,'0').slice(0,8);
+  localStorage.setItem(C.HKEY, fp);
+  return fp;
+}
+
+// ─── SESSION ─────────────────────────────────────────
+function saveSess(d) { localStorage.setItem(C.SKEY, JSON.stringify(d)); }
+function loadSess() {
+  try { const r = localStorage.getItem(C.SKEY); return r ? JSON.parse(r) : null; } catch { return null; }
+}
+function clearSess() { localStorage.removeItem(C.SKEY); S.session = null; }
+
+// ─── API ─────────────────────────────────────────────
+async function callAPI(key) {
+  const url = `${C.API}?api_key=${enc(C.AKEY)}&key=${enc(key)}&hwid=${enc(S.hwid)}`;
+  // Native bridge for WKWebView CORS
+  if (window.webkit?.messageHandlers?.nativeBridge) {
+    return new Promise((res, rej) => {
+      const id = 'cb_' + Date.now();
+      window[id] = d => { delete window[id]; res(d); };
+      window[id+'_e'] = e => { delete window[id]; delete window[id+'_e']; rej(new Error(e)); };
+      window.webkit.messageHandlers.nativeBridge.postMessage({ action:'httpGet', url, callbackId:id });
+    });
+  }
+  const r = await fetch(url, { headers:{ Accept:'application/json' } });
+  return r.json();
+}
+window.receiveAPIResponse = (id, str) => {
+  try { const d = JSON.parse(str); if (window[id]) window[id](d); }
+  catch(e) { if (window[id+'_e']) window[id+'_e'](e.message); }
+};
+
+// ─── AUTH FLOW ───────────────────────────────────────
+async function doAuth(silent = false) {
+  if (S.authBusy) return;
+  const key = (el('keyInp').value || '').trim();
+  if (!key) { if (!silent) shakeInp(); return; }
+  S.authBusy = true; setLoading(true);
+  try {
+    const data = await callAPI(key);
+    onResponse(data, key);
+  } catch (e) {
+    showErr('Lỗi Kết Nối', 'Không thể kết nối máy chủ', key);
+  } finally { S.authBusy = false; setLoading(false); }
+}
+
+function onResponse(d, key) {
+  const ok = d.valid === true || d.status === 'success' || d.code === 200;
+  if (ok) {
+    // Parse expiry timestamp - handle multiple server formats
+    let expTs = d.expires_timestamp || d.expiry_timestamp || d.expiry || 0;
+    let remSec = d.remaining_seconds || d.duration_seconds || 86400;
+    if (!expTs && remSec) expTs = Math.floor(Date.now()/1000) + remSec;
+    const sess = {
+      key: d.key || key,
+      duration: d.duration || d.time_limit || d.plan || '---',
+      expiresAt: d.expires_at || d.expiry_date || fmtTs(expTs) || '---',
+      expTs, remSec
+    };
+    S.session = sess; saveSess(sess);
+    showSuccess(sess);
+  } else {
+    const msg = (d.message || '').toLowerCase();
+    const code = d.code || 0;
+    let title;
+    if (msg.includes('khóa') || msg.includes('band') || msg.includes('banned') || code===403)
+      title = 'Key Đã Bị Khóa';
+    else if (msg.includes('xóa') || msg.includes('delet') || msg.includes('remov') || code===410)
+      title = 'Key Đã Bị Xóa';
+    else if (msg.includes('hết hạn') || msg.includes('expir') || code===402)
+      title = 'Key Đã Hết Hạn';
+    else if (msg.includes('không tồn tại') || msg.includes('not found') || msg.includes('invalid') || code===404||code===401)
+      title = 'Key Không Tồn Tại';
+    else title = d.message || 'Xác Thực Thất Bại';
+    // Clear locked device if stored key fails
+    const st = loadSess();
+    if (st && st.key.toUpperCase() === key.toUpperCase()) {
+      clearSess();
+      el('keyInp').readOnly = false; el('keyInp').value = '';
+      el('pasteBtn').style.display = '';
+    }
+    showErr(title, title, key);
+  }
+}
+
+// ─── MODALS ──────────────────────────────────────────
+function showSuccess(s) {
+  el('sKey').textContent = s.key;
+  el('sDur').textContent = s.duration;
+  el('sExp').textContent = s.expiresAt;
+  showOverlay('sucOv');
+  let n = 6; el('sucN').textContent = n;
+  const t = setInterval(() => {
+    el('sucN').textContent = --n;
+    if (n <= 0) { clearInterval(t); hideOverlay('sucOv'); enterApp(); }
+  }, 1000);
+}
+
+function showErr(title, status, key) {
+  el('errTitle').textContent = title;
+  el('eKey').textContent = key;
+  el('eStatus').textContent = status;
+  showOverlay('errOv');
+  let n = 4; el('errN').textContent = n;
+  const t = setInterval(() => {
+    el('errN').textContent = --n;
+    if (n <= 0) { clearInterval(t); hideOverlay('errOv'); }
+  }, 1000);
+}
+
+function showExpiry() {
+  el('expKey').textContent = S.session?.key || '---';
+  showOverlay('expiryOv');
+  let n = 4; el('expN').textContent = n;
+  const t = setInterval(() => {
+    el('expN').textContent = --n;
+    if (n <= 0) { clearInterval(t); hideOverlay('expiryOv'); kickToAuth(); }
+  }, 1000);
+}
+
+// ─── NAVIGATION ──────────────────────────────────────
+function showScreen(name) {
+  ['spS','authS','appS'].forEach(id => el(id).classList.remove('act'));
+  if (name === 'splash') el('spS').classList.add('act');
+  else if (name === 'auth') el('authS').classList.add('act');
+  else if (name === 'app') el('appS').classList.add('act');
+}
+
+function enterApp() {
+  fillAppUI(); showScreen('app');
+  startCD(); startPoll();
+}
+
+function kickToAuth() {
+  stopCD(); stopPoll(); clearSess();
+  el('keyInp').value = ''; el('keyInp').readOnly = false;
+  el('pasteBtn').style.display = '';
+  showScreen('auth');
+}
+
+function switchTab(name) {
+  S.tab = name;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('act'));
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('act'));
+  el('tb'+name).classList.add('act');
+  el('p'+name).classList.add('act');
+}
+
+// ─── APP UI ──────────────────────────────────────────
+function fillAppUI() {
+  if (!S.session) return;
+  const s = S.session, hw = S.hwid||'---';
+  // Home
+  el('hKey').textContent = s.key; el('hDur').textContent = s.duration;
+  el('hExpAt').textContent = s.expiresAt; el('hHWID').textContent = hw;
+  // Settings
+  el('stKey').textContent = s.key; el('stDur').textContent = s.duration;
+  el('stExp').textContent = s.expiresAt; el('stHWID').textContent = hw;
+}
+
+// ─── COUNTDOWN ───────────────────────────────────────
+function startCD() {
+  stopCD();
+  if (!S.session?.expTs) return;
+  S.cdTimer = setInterval(() => {
+    const rem = Math.max(0, S.session.expTs - Math.floor(Date.now()/1000));
+    const str = fmtSec(rem);
+    setText('hCd', str); setText('stCd', str);
+    if (rem <= 0) { stopCD(); showExpiry(); }
+  }, 1000);
+}
+function stopCD() { clearInterval(S.cdTimer); S.cdTimer = null; }
+
+// ─── POLLING ─────────────────────────────────────────
+function startPoll() {
+  stopPoll();
+  S.pollTimer = setInterval(async () => {
+    if (!S.session) return;
+    try {
+      const d = await callAPI(S.session.key);
+      const ok = d.valid === true || d.status === 'success' || d.code === 200;
+      if (!ok) { stopPoll(); stopCD(); clearSess(); showExpiry(); return; }
+      // Sync expiry from server
+      if (d.remaining_seconds) {
+        S.session.expTs = Math.floor(Date.now()/1000) + d.remaining_seconds;
+        saveSess(S.session);
+      } else if (d.expires_timestamp) {
+        S.session.expTs = d.expires_timestamp; saveSess(S.session);
+      }
+    } catch {}
+  }, C.POLL);
+}
+function stopPoll() { clearInterval(S.pollTimer); S.pollTimer = null; }
+
+// ─── UTILS ───────────────────────────────────────────
+function el(id) { return document.getElementById(id); }
+function setText(id, v) { const e = el(id); if(e) e.textContent = v; }
+function enc(s) { return encodeURIComponent(s); }
+function showOverlay(id) { el(id).classList.add('show'); }
+function hideOverlay(id) { el(id).classList.remove('show'); }
+function setLoading(on) {
+  const btn = el('authBtn');
+  if (on) {
+    el('authIcon').innerHTML = '<div class="spinner"></div>';
+    el('authTxt').textContent = 'Đang Xác Thực...';
+    btn.disabled = true;
+  } else {
+    el('authIcon').textContent = '⚡';
+    el('authTxt').textContent = 'Xác Thực & Mở Khóa';
+    btn.disabled = false;
+  }
+}
+function shakeInp() {
+  const i = el('keyInp');
+  i.style.borderColor = 'var(--red)';
+  i.style.boxShadow = '0 0 0 4px rgba(255,69,58,.15)';
+  setTimeout(() => { i.style.borderColor=''; i.style.boxShadow=''; }, 600);
+}
+function fmtTs(ts) {
+  if (!ts) return null;
+  const d = new Date(ts * 1000);
+  return d.toLocaleDateString('vi-VN') + ' ' + d.toLocaleTimeString('vi-VN');
+}
+function fmtSec(sec) {
+  if (sec <= 0) return '00:00:00';
+  const d = Math.floor(sec/86400), h = Math.floor((sec%86400)/3600),
+        m = Math.floor((sec%3600)/60), s = sec%60;
+  return d > 0 ? `${d}N ${p2(h)}:${p2(m)}:${p2(s)}` : `${p2(h)}:${p2(m)}:${p2(s)}`;
+}
+function p2(n) { return n.toString().padStart(2,'0'); }
+async function doPaste() {
+  try {
+    if (navigator.clipboard?.readText) {
+      el('keyInp').value = (await navigator.clipboard.readText()).trim();
+    }
+  } catch { el('keyInp').focus(); }
+}
+function openURL(url) {
+  if (window.webkit?.messageHandlers?.nativeBridge)
+    window.webkit.messageHandlers.nativeBridge.postMessage({ action:'openURL', url });
+  else window.open(url, '_blank');
+}
+
+// ─── STARS ───────────────────────────────────────────
+function buildStars() {
+  const cv = el('starCanvas'), ctx = cv.getContext('2d');
+  cv.width = innerWidth; cv.height = innerHeight;
+  ctx.clearRect(0,0,cv.width,cv.height);
+  for (let i = 0; i < 140; i++) {
+    const x=Math.random()*cv.width, y=Math.random()*cv.height,
+          r=Math.random()*1.4+.25, a=Math.random()*.8+.1;
+    ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2);
+    ctx.fillStyle=`rgba(255,255,255,${a})`; ctx.fill();
+  }
+  for (let i = 0; i < 18; i++) {
+    const x=Math.random()*cv.width, y=Math.random()*cv.height, r=Math.random()*2+1;
+    const g = ctx.createRadialGradient(x,y,0,x,y,r*4);
+    g.addColorStop(0,'rgba(255,255,255,.9)'); g.addColorStop(1,'rgba(255,255,255,0)');
+    ctx.beginPath(); ctx.arc(x,y,r*4,0,Math.PI*2);
+    ctx.fillStyle=g; ctx.fill();
+  }
+}
+
+// Animated star twinkle
+(function twinkle() {
+  const cv = el('starCanvas');
+  if (!cv) return;
+  let t = 0;
+  function frame() {
+    t++;
+    if (t % 180 === 0) buildStars(); // Rebuild every ~3s for twinkle
+    requestAnimationFrame(frame);
+  }
+  frame();
+})();
+
+// ─── APPS DATA ───────────────────────────────────────
+const APPS = [
+  { n:'Free Fire',     id:'com.dts.freefireth',  ico:'🔥', bg:'#1a0800' },
+  { n:'Free Fire Max', id:'com.dts.freefiremax', ico:'🔥', bg:'#00081a' },
+  { n:'PUBG Mobile',   id:'com.tencent.ig',      ico:'🎮', bg:'#0a1500' },
+  { n:'Mobile Legends',id:'com.mobilelegends',   ico:'⚔️', bg:'#100018' },
+  { n:'Clash Royale',  id:'com.supercell.scroll',ico:'🏆', bg:'#001218' },
+  { n:'Roblox',        id:'com.roblox.client',   ico:'🧱', bg:'#181800' },
+];
+let _apps = [...APPS];
+
+function renderApps(list) {
+  const g = el('appsGrid');
+  if (!g) return;
+  g.innerHTML = list.map(a => `
+    <div class="ac">
+      <div class="ac-icon" style="background:${a.bg}" onclick="launchApp('${a.id}')">${a.ico}</div>
+      <div class="ac-name">${a.n}</div>
+      <div class="ac-id">${a.id}</div>
+    </div>`).join('');
+}
+function filterApps(q) {
+  const lq = q.toLowerCase();
+  renderApps(lq ? _apps.filter(a => a.n.toLowerCase().includes(lq)||a.id.includes(lq)) : _apps);
+}
+function launchApp(id) {
+  if (window.webkit?.messageHandlers?.nativeBridge)
+    window.webkit.messageHandlers.nativeBridge.postMessage({ action:'launchApp', bundleId:id });
+}
+</script>
+</body>
+</html>
